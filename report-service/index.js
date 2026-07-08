@@ -5,12 +5,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL || "http://payment-service:3000";
+const PARKING_SERVICE_URL = process.env.PARKING_SERVICE_URL || "http://parking-service:3000";
+
 app.get("/revenue", async (req, res) => {
   let totalRevenue = 500000;
   let totalPayments = 25;
 
   try {
-    const response = await fetch("http://payment-service:3000/");
+    const response = await fetch(`${PAYMENT_SERVICE_URL}/`);
     if (response.ok) {
       const payments = await response.json();
       payments.forEach(p => {
@@ -35,7 +38,7 @@ app.get("/usage", async (req, res) => {
   let availableSlots = 35;
 
   try {
-    const response = await fetch("http://parking-service:3000/slots");
+    const response = await fetch(`${PARKING_SERVICE_URL}/slots`);
     if (response.ok) {
       const slots = await response.json();
       totalSlots = slots.length;
@@ -56,6 +59,7 @@ app.get("/usage", async (req, res) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log("Report Service running on port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Report Service running on port ${PORT}`);
 });

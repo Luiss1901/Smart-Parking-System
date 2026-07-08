@@ -5,6 +5,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const PARKING_SERVICE_URL = process.env.PARKING_SERVICE_URL || "http://parking-service:3000";
+
 let bookings = [];
 
 app.post("/", async (req, res) => {
@@ -15,7 +17,7 @@ app.post("/", async (req, res) => {
   }
 
   try {
-    const response = await fetch(`http://parking-service:3000/slots/${slotId}/reserve`, {
+    const response = await fetch(`${PARKING_SERVICE_URL}/slots/${slotId}/reserve`, {
       method: "PUT"
     });
 
@@ -58,13 +60,14 @@ app.put("/:id/cancel", async (req, res) => {
 
   booking.status = "CANCELLED";
 
-  await fetch(`http://parking-service:3000/slots/${booking.slotId}/release`, {
+  await fetch(`${PARKING_SERVICE_URL}/slots/${booking.slotId}/release`, {
     method: "PUT"
   });
 
   res.json({ message: "Hủy đặt chỗ thành công", booking });
 });
 
-app.listen(3000, () => {
-  console.log("Booking Service running on port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Booking Service running on port ${PORT}`);
 });
