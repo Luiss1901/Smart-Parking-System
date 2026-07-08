@@ -77,4 +77,21 @@ window.addEventListener('DOMContentLoaded', () => {
   loadSlots();
   loadBookings();
   loadReports();
+
+  // Check for VNPay Return Callback
+  const urlParams = new URLSearchParams(window.location.search);
+  const responseCode = urlParams.get('vnp_ResponseCode');
+  const txnRef = urlParams.get('vnp_TxnRef');
+  const amountParam = urlParams.get('vnp_Amount');
+
+  if (responseCode === '00' && txnRef) {
+    const bookingId = parseInt(txnRef.split('_')[0]);
+    const amount = amountParam ? parseInt(amountParam) / 100 : 40000;
+    
+    // Process payment success callback
+    processVnpaySuccess(bookingId, amount);
+
+    // Clean URL query parameters to avoid repeat logic on refresh
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
 });

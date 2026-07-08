@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const crypto = require("crypto");
 
 const app = express();
 app.use(cors());
@@ -8,6 +9,68 @@ app.use(express.json());
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:3000";
 
 let payments = [];
+
+app.post("/vnpay_url", (req, res) => {
+  const { bookingId, amount } = req.body;
+  if (!bookingId || !amount) {
+    return res.status(400).json({ message: "Thiếu thông tin bookingId hoặc amount" });
+  }
+
+  const ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  
+  const tmnCode = "2QXUIB0A";
+  const secretKey = "MSDCOALVXZXPZJOFMGSXVORMTTRWJQIH";
+  let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+  const returnUrl = "http://localhost:5173/";
+
+  const date = new Date();
+  const createDate = date.getFullYear().toString() +
+    (date.getMonth() + 1).toString().padStart(2, '0') +
+    date.getDate().toString().padStart(2, '0') +
+    date.getHours().toString().padStart(2, '0') +
+    date.getMinutes().toString().padStart(2, '0') +
+    date.getSeconds().toString().padStart(2, '0');
+
+  const txnRef = bookingId + "_" + Date.now();
+
+  let vnp_Params = {};
+  vnp_Params['vnp_Version'] = '2.1.0';
+  vnp_Params['vnp_Command'] = 'pay';
+  vnp_Params['vnp_TmnCode'] = tmnCode;
+  vnp_Params['vnp_Locale'] = 'vn';
+  vnp_Params['vnp_CurrCode'] = 'VND';
+  vnp_Params['vnp_TxnRef'] = txnRef;
+  vnp_Params['vnp_OrderInfo'] = `Thanh toan do xe Booking ID ${bookingId}`;
+  vnp_Params['vnp_OrderType'] = 'other';
+  vnp_Params['vnp_Amount'] = amount * 100;
+  vnp_Params['vnp_ReturnUrl'] = returnUrl;
+  vnp_Params['vnp_IpAddr'] = ipAddr;
+  vnp_Params['vnp_CreateDate'] = createDate;
+
+  // Sort parameters alphabetically
+  const sortedParams = {};
+  const keys = Object.keys(vnp_Params).sort();
+  for (let key of keys) {
+    sortedParams[key] = encodeURIComponent(vnp_Params[key]).replace(/%20/g, "+");
+  }
+
+  // Build query signData
+  const signData = Object.keys(vnp_Params).sort()
+    .map(key => `${key}=${encodeURIComponent(vnp_Params[key]).replace(/%20/g, "+")}`)
+    .join('&');
+
+  const hmac = crypto.createHmac("sha512", secretKey);
+  const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
+  
+  sortedParams['vnp_SecureHash'] = signed;
+  
+  const queryStr = Object.entries(sortedParams)
+    .map(([key, val]) => `${key}=${val}`)
+    .join('&');
+
+  const finalUrl = vnpUrl + '?' + queryStr;
+  res.json({ paymentUrl: finalUrl });
+});
 
 app.post("/calculate", (req, res) => {
   const { hours, vehicleType } = req.body;
