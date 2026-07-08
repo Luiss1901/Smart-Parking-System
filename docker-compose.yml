@@ -14,6 +14,7 @@ services:
       - booking-service
       - payment-service
       - report-service
+      - notification-service
 
   auth-service:
     build: ./auth-service
@@ -34,6 +35,10 @@ services:
       - "3003:3000"
     depends_on:
       - parking-service
+    environment:
+      - PARKING_SERVICE_URL=http://parking-service:3000
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3000
+      - AUTH_SERVICE_URL=http://auth-service:3000
 
   payment-service:
     build: ./payment-service
@@ -42,12 +47,23 @@ services:
       - "3004:3000"
     depends_on:
       - booking-service
+    environment:
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3000
 
   report-service:
     build: ./report-service
     container_name: report-service
     ports:
       - "3005:3000"
+    environment:
+      - PARKING_SERVICE_URL=http://parking-service:3000
+      - PAYMENT_SERVICE_URL=http://payment-service:3000
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "3006:3000"
 
   frontend:
     image: nginx:latest

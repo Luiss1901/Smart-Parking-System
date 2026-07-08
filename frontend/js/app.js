@@ -15,6 +15,7 @@ function switchTab(tabId) {
     if (tabId === 'overview') titleEl.textContent = 'Tổng Quan Hệ Thống';
     else if (tabId === 'analytics') titleEl.textContent = 'Báo Cáo & Phân Tích';
     else if (tabId === 'diagnostics') titleEl.textContent = 'Nhật Ký Giao Tiếp';
+    else if (tabId === 'hardware') titleEl.textContent = 'Giả Lập Thiết Bị Phần Cứng';
     else if (tabId === 'profile') titleEl.textContent = 'Hồ Sơ Cá Nhân';
   }
 
@@ -33,6 +34,9 @@ function switchTab(tabId) {
     loadBookings();
   } else if (tabId === 'analytics') {
     loadReports();
+  } else if (tabId === 'hardware') {
+    loadSensors();
+    loadNotifications();
   }
 }
 

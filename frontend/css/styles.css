@@ -979,3 +979,133 @@ body {
     display: none;
   }
 }
+
+/* Barrier simulator visual */
+.barrier-visual-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  position: relative;
+  height: 180px;
+}
+
+.barrier-gate {
+  width: 140px;
+  height: 20px;
+  background: var(--text-muted);
+  border-radius: 4px;
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.barrier-arm {
+  position: absolute;
+  top: 6px;
+  left: 20px;
+  width: 160px;
+  height: 8px;
+  background: repeating-linear-gradient(
+    45deg,
+    #ef4444,
+    #ef4444 10px,
+    #ffffff 10px,
+    #ffffff 20px
+  );
+  border-radius: 4px;
+  transform-origin: left center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: rotate(0deg);
+}
+
+.barrier-arm.open {
+  transform: rotate(-75deg);
+}
+
+.barrier-status-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 3.5rem;
+  color: var(--danger);
+  text-transform: uppercase;
+}
+
+.barrier-status-text.open {
+  color: var(--success);
+}
+
+/* Sensor override */
+.sensor-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.2);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+}
+
+.sensor-slot-name {
+  font-weight: 600;
+  color: white;
+}
+
+.sensor-select {
+  background: var(--bg-input);
+  color: white;
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.sensor-select:focus {
+  border-color: var(--primary);
+}
+
+/* Notification inbox */
+.inbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.inbox-item {
+  background: rgba(15, 23, 42, 0.25);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.inbox-item-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.inbox-badge {
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.inbox-badge.sms { background: rgba(99,102,241,0.15); color: #818cf8; }
+.inbox-badge.email { background: rgba(16,185,129,0.15); color: #34d399; }
+
+.inbox-message {
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+

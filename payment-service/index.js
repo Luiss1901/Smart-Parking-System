@@ -5,6 +5,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:3000";
+
 let payments = [];
 
 app.post("/calculate", (req, res) => {
@@ -36,6 +38,18 @@ app.post("/pay", (req, res) => {
   };
 
   payments.push(payment);
+
+  // Call Notification Service
+  try {
+    fetch(`${NOTIFICATION_SERVICE_URL}/notify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "Email",
+        message: `Hóa đơn thanh toán thành công cho Booking ID ${bookingId}. Số tiền: ${amount.toLocaleString()}đ.`
+      })
+    }).catch(err => console.log("Silent error calling notify in pay-service:", err.message));
+  } catch(e) {}
 
   res.json({
     message: "Thanh toán thành công",

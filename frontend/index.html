@@ -46,6 +46,12 @@
           </button>
         </li>
         <li>
+          <button class="menu-item" id="menu-hardware" onclick="switchTab('hardware')">
+            <i data-lucide="cpu"></i>
+            <span>Giả Lập Thiết Bị</span>
+          </button>
+        </li>
+        <li>
           <button class="menu-item" id="menu-profile" onclick="switchTab('profile')">
             <i data-lucide="user"></i>
             <span>Hồ Sơ Cá Nhân</span>
@@ -215,6 +221,71 @@
         </div>
       </div>
 
+      <!-- Tab: Hardware Simulator -->
+      <div class="tab-content" id="tab-hardware">
+        <div class="overview-grid">
+          <!-- Column 1: Camera & Sensor -->
+          <div>
+            <!-- Camera & Barrier -->
+            <div class="glass-card">
+              <div class="card-title">
+                <i data-lucide="camera"></i> <span>Quét Biển Số Xe (Camera cổng)</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 1.5rem;">
+                Nhập biển số để giả lập camera quét xe đi vào bãi đỗ. Nếu biển số trùng khớp với lịch đã đặt, cổng Barrier tự động mở.
+              </p>
+              
+              <div class="form-group" style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+                <input type="text" id="sim-plate-input" class="form-control" placeholder="Ví dụ: 30A-888.88" value="30A-888.88" style="flex: 2;">
+                <button onclick="simulateGateEntry()" class="btn" style="flex: 1; padding: 0.6rem;">
+                  <i data-lucide="scan"></i> Quét cổng
+                </button>
+              </div>
+              
+              <div class="barrier-visual-box">
+                <div class="barrier-gate">
+                  <div class="barrier-arm" id="sim-barrier-arm"></div>
+                </div>
+                <div class="barrier-status-text" id="sim-barrier-status">CỔNG ĐÓNG</div>
+              </div>
+              <p id="sim-gate-message" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 0.5rem;"></p>
+            </div>
+
+            <!-- Sensor Override -->
+            <div class="glass-card">
+              <div class="card-title">
+                <i data-lucide="cpu"></i> <span>Cảm Biến Chỗ Đỗ (Sensor)</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 1.5rem;">
+                Bật/tắt cảm biến vật lý tại từng vị trí đỗ để ép trạng thái (AVAILABLE, OCCUPIED, RESERVED) bỏ qua luồng đặt trước.
+              </p>
+              <div id="sensor-override-container">
+                <!-- Dynamic sensors load here -->
+                Đang tải cảm biến...
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Notification Logs -->
+          <div class="glass-card">
+            <div class="card-title">
+              <i data-lucide="mail"></i> <span>Hòm Thư Thông Báo (Notification Service)</span>
+              <button onclick="loadNotifications()" class="btn btn-secondary" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-left: auto; border-radius: 8px;">
+                Làm mới
+              </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 1.5rem;">
+              Dữ liệu thông báo thực tế gửi đi từ các Microservice thông qua Dịch vụ Thông Báo (cổng 3006).
+            </p>
+            <div class="inbox-list" id="inbox-container">
+              <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                Chưa có thông báo nào.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Tab 4: Profile / Auth -->
       <div class="tab-content" id="tab-profile">
         <div class="auth-container">
@@ -357,6 +428,7 @@
   <script src="js/booking.js"></script>
   <script src="js/payment.js"></script>
   <script src="js/report.js"></script>
+  <script src="js/hardware.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -46,6 +46,22 @@ app.put("/slots/:id/release", (req, res) => {
   res.json({ message: "Đã trả chỗ", slot });
 });
 
+app.put("/slots/:id/status", (req, res) => {
+  const slot = slots.find(s => s.id == req.params.id);
+
+  if (!slot) {
+    return res.status(404).json({ message: "Không tìm thấy chỗ đỗ" });
+  }
+
+  const { status } = req.body;
+  if (!status || !["AVAILABLE", "OCCUPIED", "RESERVED"].includes(status)) {
+    return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+  }
+
+  slot.status = status;
+  res.json({ message: `Đã cập nhật trạng thái ô đỗ thành ${status}`, slot });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Parking Service running on port ${PORT}`);
