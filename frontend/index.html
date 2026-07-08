@@ -419,6 +419,43 @@
         </button>
       </form>
     </div>
+  <!-- PAYMENT MODAL -->
+  <div class="modal-backdrop" id="payment-modal">
+    <div class="modal-content" style="max-width: 420px; text-align: center;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.35rem; font-weight: 600; color: white; display: flex; align-items: center; gap: 0.5rem; justify-content: center; width: 100%;">
+          <i data-lucide="qr-code" style="color: var(--success);"></i> Cổng Thanh Toán VietQR
+        </h3>
+        <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+      </div>
+      
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.5rem; margin-bottom: 1rem;">
+        Quét mã QR bằng ứng dụng Ngân hàng (VietQR) để thanh toán.
+      </p>
+
+      <div style="background: white; padding: 1rem; border-radius: 16px; display: inline-block; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+        <img id="payment-qr-image" src="" alt="VietQR Payment Code" style="width: 220px; height: auto; display: block;">
+      </div>
+
+      <div style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.85rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom: 0.5rem;">
+          <span style="color:var(--text-muted)">Số tiền VND:</span>
+          <span id="payment-amount-vnd" style="font-weight:700; color:white;">0đ</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom: 0.5rem;">
+          <span style="color:var(--text-muted)">Quy đổi USD (Live Rate):</span>
+          <span id="payment-amount-usd" style="color:var(--success); font-weight: 600;">$0.00 USD</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-muted)">Nội dung chuyển khoản:</span>
+          <span id="payment-info" style="color:var(--warning); font-weight:600;">Booking-1</span>
+        </div>
+      </div>
+
+      <button id="btn-confirm-payment" class="btn" style="background: linear-gradient(135deg, var(--success), #059669); box-shadow: 0 4px 15px var(--success-glow);">
+        <i data-lucide="check"></i> Tôi Đã Chuyển Khoản Thành Công
+      </button>
+    </div>
   </div>
 
   <!-- Modular Scripts -->

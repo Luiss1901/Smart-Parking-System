@@ -22,18 +22,41 @@ app.post("/calculate", (req, res) => {
   });
 });
 
-app.post("/pay", (req, res) => {
+app.post("/pay", async (req, res) => {
   const { bookingId, amount } = req.body;
 
   if (!bookingId || !amount) {
     return res.status(400).json({ message: "Thiếu thông tin thanh toán" });
   }
 
+  // 1. Call Live Currency exchange API (External Backend API)
+  let usdAmount = 0;
+  let exchangeRate = 25400; // default fallback
+  try {
+    const exchangeRes = await fetch("https://open.er-api.com/v6/latest/VND");
+    if (exchangeRes.ok) {
+      const data = await exchangeRes.json();
+      exchangeRate = data.rates.USD;
+      usdAmount = (amount * exchangeRate).toFixed(2);
+    } else {
+      usdAmount = (amount / 25400).toFixed(2);
+    }
+  } catch (err) {
+    console.log("[Payment Service] Warning: Can't fetch external exchange rate API, using fallback. Error:", err.message);
+    usdAmount = (amount / 25400).toFixed(2);
+  }
+
+  // 2. Generate scannable VietQR URL (External Bank QR API)
+  const vietQrUrl = `https://img.vietqr.io/image/MB-123456789-compact.png?amount=${amount}&addInfo=Thanh%20toan%20Smart%20Parking%20Booking%20${bookingId}&accountName=SMART%20PARKING%20SYSTEM`;
+
   const payment = {
     id: payments.length + 1,
     bookingId,
     amount,
+    usdAmount,
+    exchangeRate: (1 / exchangeRate).toFixed(0),
     status: "PAID",
+    vietQrUrl,
     paidAt: new Date()
   };
 
@@ -46,13 +69,13 @@ app.post("/pay", (req, res) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         type: "Email",
-        message: `Hóa đơn thanh toán thành công cho Booking ID ${bookingId}. Số tiền: ${amount.toLocaleString()}đ.`
+        message: `Hóa đơn đã THANH TOÁN THÀNH CÔNG (External Gateway). Số tiền: ${amount.toLocaleString()}đ (~$${usdAmount} USD).`
       })
     }).catch(err => console.log("Silent error calling notify in pay-service:", err.message));
   } catch(e) {}
 
   res.json({
-    message: "Thanh toán thành công",
+    message: "Thanh toán thành công qua cổng liên kết",
     payment
   });
 });
