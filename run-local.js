@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SERVICES = [
-  { name: 'auth-service', dir: 'auth-service', port: 3001, env: {} },
+  { name: 'auth-service', dir: 'auth-service', port: 3001, env: { NOTIFICATION_SERVICE_URL: 'http://localhost:3006' } },
   { name: 'parking-service', dir: 'parking-service', port: 3002, env: {} },
   { name: 'booking-service', dir: 'booking-service', port: 3003, env: { PARKING_SERVICE_URL: 'http://localhost:3002', NOTIFICATION_SERVICE_URL: 'http://localhost:3006', AUTH_SERVICE_URL: 'http://localhost:3001' } },
   { name: 'payment-service', dir: 'payment-service', port: 3004, env: { NOTIFICATION_SERVICE_URL: 'http://localhost:3006' } },

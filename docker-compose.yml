@@ -21,6 +21,9 @@ services:
     container_name: auth-service
     ports:
       - "3001:3000"
+    environment:
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3000
+
 
   parking-service:
     build: ./parking-service
