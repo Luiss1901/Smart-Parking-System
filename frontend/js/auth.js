@@ -130,6 +130,12 @@ function showUserProfile() {
   document.getElementById("profile-plate").textContent = currentUser.plateNumber;
   
   document.getElementById("profile-container").style.display = 'block';
+
+  // Update sidebar user card
+  const usernameEl = document.getElementById("sidebar-username");
+  const plateEl = document.getElementById("sidebar-plate");
+  if (usernameEl) usernameEl.textContent = currentUser.name;
+  if (plateEl) plateEl.textContent = currentUser.plateNumber;
 }
 
 function handleLogout() {
@@ -139,4 +145,10 @@ function handleLogout() {
   switchAuthTab('login');
   addLog("auth", "SYSTEM", "Người dùng đã đăng xuất.");
   loadBookings();
+
+  // Reset sidebar user card
+  const usernameEl = document.getElementById("sidebar-username");
+  const plateEl = document.getElementById("sidebar-plate");
+  if (usernameEl) usernameEl.textContent = "Khách";
+  if (plateEl) plateEl.textContent = "Chưa đăng nhập";
 }

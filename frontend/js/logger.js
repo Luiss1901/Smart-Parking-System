@@ -13,6 +13,7 @@ function addLog(service, endpoint, message) {
   
   const line = document.createElement("div");
   line.className = "log-line";
+  line.setAttribute("data-service", service);
   
   let tagClass = "tag-info";
   if (service === "gateway") tagClass = "tag-gateway";

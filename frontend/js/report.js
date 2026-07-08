@@ -27,6 +27,9 @@ async function loadReports() {
       document.getElementById("usage-percent").textContent = dataUsage.usageRate;
       document.getElementById("usage-detail").textContent = `Đang đỗ: ${occupied} / Tổng số: ${total} ô`;
       
+      const usageRateEl = document.getElementById("report-usage-rate");
+      if (usageRateEl) usageRateEl.textContent = dataUsage.usageRate;
+      
       // Animate Circular Gauge SVG
       const circle = document.getElementById("usage-circle");
       if (circle) {

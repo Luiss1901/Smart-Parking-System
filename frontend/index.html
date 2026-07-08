@@ -16,153 +16,102 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <div class="brand">
-      <div class="brand-logo">
-        <i data-lucide="parking-circle"></i>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <i data-lucide="parking-circle"></i>
+        </div>
+        <span>Smart Parking</span>
       </div>
-      <div>
-        <h1 class="brand-title">Smart Parking</h1>
-        <p style="font-size: 0.75rem; color: var(--text-muted);">Microservices System Demo</p>
-      </div>
-    </div>
-    
-    <div class="user-profile-header">
-      <div class="status-indicator">
-        <div class="status-dot"></div>
-        <span>Gateway Online (8080)</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Grid -->
-  <div class="dashboard-container">
-    
-    <!-- LEFT SIDE: Auth and Parking Slots -->
-    <div>
       
-      <!-- AUTHENTICATION CARD -->
-      <div class="glass-card" id="auth-card">
-        <div class="card-title" id="auth-title">
-          <i data-lucide="lock"></i> <span>Tài Khoản & Quyền Truy Cập</span>
-        </div>
-        
-        <!-- Tab buttons -->
-        <div class="tab-container" id="auth-tabs">
-          <button class="tab-btn active" onclick="switchAuthTab('login')">Đăng Nhập</button>
-          <button class="tab-btn" onclick="switchAuthTab('register')">Đăng Ký</button>
-        </div>
-
-        <!-- Login Form -->
-        <form id="login-form" onsubmit="handleLogin(event)">
-          <div class="form-group">
-            <label for="login-email">Email</label>
-            <input type="email" id="login-email" class="form-control" placeholder="user@example.com" required value="member1@example.com">
-          </div>
-          <div class="form-group">
-            <label for="login-password">Mật khẩu</label>
-            <input type="password" id="login-password" class="form-control" placeholder="••••••••" required value="password123">
-          </div>
-          <button type="submit" class="btn">
-            <i data-lucide="log-in"></i> Đăng Nhập
+      <ul class="sidebar-menu">
+        <li>
+          <button class="menu-item active" id="menu-overview" onclick="switchTab('overview')">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Tổng Quan</span>
           </button>
-        </form>
-
-        <!-- Register Form (Hidden initially) -->
-        <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
-          <div class="form-group">
-            <label for="reg-name">Họ và tên</label>
-            <input type="text" id="reg-name" class="form-control" placeholder="Nguyễn Văn A" required>
-          </div>
-          <div class="form-group">
-            <label for="reg-email">Email</label>
-            <input type="email" id="reg-email" class="form-control" placeholder="user@example.com" required>
-          </div>
-          <div class="form-group">
-            <label for="reg-password">Mật khẩu</label>
-            <input type="password" id="reg-password" class="form-control" placeholder="••••••••" required>
-          </div>
-          <div class="form-group">
-            <label for="reg-plate">Biển số xe</label>
-            <input type="text" id="reg-plate" class="form-control" placeholder="30A-999.99" required>
-          </div>
-          <button type="submit" class="btn">
-            <i data-lucide="user-plus"></i> Tạo Tài Khoản
+        </li>
+        <li>
+          <button class="menu-item" id="menu-analytics" onclick="switchTab('analytics')">
+            <i data-lucide="trending-up"></i>
+            <span>Báo Cáo & Phân Tích</span>
           </button>
-        </form>
+        </li>
+        <li>
+          <button class="menu-item" id="menu-diagnostics" onclick="switchTab('diagnostics')">
+            <i data-lucide="terminal"></i>
+            <span>Nhật Ký Giao Tiếp</span>
+          </button>
+        </li>
+        <li>
+          <button class="menu-item" id="menu-profile" onclick="switchTab('profile')">
+            <i data-lucide="user"></i>
+            <span>Hồ Sơ Cá Nhân</span>
+          </button>
+        </li>
+      </ul>
 
-        <!-- Profile display (Hidden initially) -->
-        <div id="profile-container" style="display: none;" class="user-card">
-          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-            <div style="background: rgba(99, 102, 241, 0.15); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
-              <i data-lucide="user"></i>
+      <div class="sidebar-user" id="sidebar-user-block">
+        <div class="sidebar-user-avatar">
+          <i data-lucide="user"></i>
+        </div>
+        <div class="sidebar-user-info">
+          <span class="sidebar-username" id="sidebar-username">Khách</span>
+          <span class="sidebar-plate" id="sidebar-plate">Chưa đăng nhập</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-header">
+        <h2 class="content-header-title" id="page-title">Tổng Quan Hệ Thống</h2>
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span>Gateway Online (8080)</span>
+        </div>
+      </div>
+
+      <!-- Tab 1: Overview -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="overview-grid">
+          <!-- Visual Parking Grid -->
+          <div class="glass-card">
+            <div class="card-title">
+              <i data-lucide="grid"></i> <span>Sơ Đồ Bãi Xe Trực Quan</span>
+              <button onclick="loadSlots()" class="btn btn-secondary" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-left: auto; border-radius: 8px;">
+                <i data-lucide="rotate-cw" style="width: 14px; height: 14px;"></i> Tải lại
+              </button>
             </div>
-            <div>
-              <h3 id="profile-name" style="font-size: 1.15rem; font-weight: 600;">Xin chào!</h3>
-              <p id="profile-role" style="font-size: 0.8rem; color: var(--primary); font-weight: 500;">Vai trò: USER</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 1.5rem;">
+              Chọn ô đỗ màu xanh để đặt chỗ nhanh.
+            </p>
+            <div class="parking-grid" id="slots-grid">
+              <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                Đang tải bãi đỗ...
+              </div>
             </div>
           </div>
-          <div class="user-info-row">
-            <span>Email</span>
-            <span id="profile-email">member1@example.com</span>
-          </div>
-          <div class="user-info-row">
-            <span>Biển số xe</span>
-            <span id="profile-plate" style="font-weight: 600; color: white;">30A-123.45</span>
-          </div>
-          
-          <button onclick="handleLogout()" class="btn btn-secondary" style="margin-top: 1rem; padding: 0.6rem;">
-            <i data-lucide="log-out"></i> Đăng Xuất
-          </button>
-        </div>
-      </div>
 
-      <!-- VISUAL PARKING LOT GRID -->
-      <div class="glass-card">
-        <div class="card-title">
-          <i data-lucide="grid"></i> <span>Sơ Đồ Bãi Xe Trực Quan</span>
-          <button onclick="loadSlots()" class="btn btn-secondary" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-left: auto; border-radius: 8px;">
-            <i data-lucide="rotate-cw" style="width: 14px; height: 14px;"></i> Refresh
-          </button>
-        </div>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -0.75rem; margin-bottom: 1rem;">
-          Chọn ô màu xanh để đặt chỗ nhanh. Các ô đỏ hiện đã có xe đỗ.
-        </p>
-
-        <div class="parking-grid" id="slots-grid">
-          <!-- Slots will load dynamically here -->
-          <div style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 2rem;">
-            Đang kết nối Parking Service...
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT SIDE: Booking, Payments, Reports & Logs -->
-    <div>
-      
-      <!-- ACTIVE BOOKINGS & PAYMENTS PANEL -->
-      <div class="glass-card">
-        <div class="card-title">
-          <i data-lucide="receipt"></i> <span>Đặt Chỗ & Thanh Toán Của Bạn</span>
-        </div>
-        <div id="bookings-container">
-          <div style="text-align: center; color: var(--text-muted); padding: 1.5rem 0;">
-            Đang tải thông tin đặt chỗ của bạn...
+          <!-- Bookings panel -->
+          <div class="glass-card">
+            <div class="card-title">
+              <i data-lucide="receipt"></i> <span>Đặt Chỗ & Thanh Toán Của Bạn</span>
+            </div>
+            <div id="bookings-container">
+              <div style="text-align: center; color: var(--text-muted); padding: 1.5rem 0;">
+                Chưa đăng nhập.
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ADMIN ANALYTICS DASHBOARD -->
-      <div class="glass-card">
-        <div class="card-title">
-          <i data-lucide="trending-up"></i> <span>Báo Cáo & Phân Tích (Admin)</span>
-          <button onclick="loadReports()" class="btn btn-secondary" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-left: auto; border-radius: 8px;">
-            <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Cập Nhật
-          </button>
-        </div>
-
+      <!-- Tab 2: Analytics -->
+      <div class="tab-content" id="tab-analytics">
+        <!-- KPI cards -->
         <div class="kpi-grid">
           <div class="kpi-card">
             <div class="kpi-icon revenue">
@@ -182,49 +131,169 @@
               <p>Lượt giao dịch</p>
             </div>
           </div>
-        </div>
-
-        <div class="analytics-chart-box">
-          <div class="circular-progress">
-            <svg>
-              <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-              <circle class="fg-circle" id="usage-circle" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
-            </svg>
-            <div class="circular-progress-text" id="usage-percent">0%</div>
-          </div>
-          <div>
-            <h4 style="font-weight: 600; color: white; margin-bottom: 0.25rem;">Tỷ Lệ Lấp Đầy Bãi Đỗ</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);" id="usage-detail">Đang tải...</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- MICROSERVICES COMMUNICATION EVENT LOG -->
-      <div class="glass-card" style="margin-bottom: 0;">
-        <div class="card-title">
-          <i data-lucide="terminal"></i> <span>Nhật Ký Giao Tiếp Microservices (Live)</span>
-          <button onclick="clearLogs()" class="btn btn-secondary" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-left: auto; border-radius: 8px;">
-            Xoá Logs
-          </button>
-        </div>
-        
-        <div class="terminal-container">
-          <div class="terminal-header">
-            <div class="terminal-buttons">
-              <div class="terminal-dot red"></div>
-              <div class="terminal-dot yellow"></div>
-              <div class="terminal-dot green"></div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color: var(--warning); background: rgba(245,158,11,0.08);">
+              <i data-lucide="percent"></i>
             </div>
-            <span>microservices_event_logger.log</span>
+            <div class="kpi-data">
+              <h3 id="report-usage-rate">0%</h3>
+              <p>Hiệu suất sử dụng</p>
+            </div>
           </div>
-          <div class="terminal-body" id="event-logs">
-            <!-- Event logs dynamically appended here -->
+        </div>
+
+        <div class="charts-grid">
+          <!-- SVG Occupancy Circular chart -->
+          <div class="analytics-chart-box">
+            <div class="circular-progress">
+              <svg>
+                <circle class="bg-circle" cx="60" cy="60" r="50"></circle>
+                <circle class="fg-circle" id="usage-circle" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"></circle>
+              </svg>
+              <div class="circular-progress-text" id="usage-percent">0%</div>
+            </div>
+            <h4 style="font-weight: 600; color: white; margin-bottom: 0.25rem;">Tỷ Lệ Lấp Đầy Bãi Đỗ</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;" id="usage-detail">Đang tải...</p>
+            <button onclick="loadReports()" class="btn btn-secondary" style="width: auto; padding: 0.4rem 1rem; border-radius: 8px;">
+              <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Làm mới dữ liệu
+            </button>
+          </div>
+
+          <!-- Custom SVG Bar Chart -->
+          <div class="glass-card" style="margin-bottom:0;">
+            <div class="card-title">
+              <i data-lucide="bar-chart-2"></i> <span>Thống Kê Doanh Thu Tuần (Mô phỏng)</span>
+            </div>
+            <div class="bar-chart-container">
+              <div class="bar-wrapper"><div class="bar" style="height: 40%;"></div><span class="bar-label">T2</span></div>
+              <div class="bar-wrapper"><div class="bar" style="height: 55%;"></div><span class="bar-label">T3</span></div>
+              <div class="bar-wrapper"><div class="bar" style="height: 75%;"></div><span class="bar-label">T4</span></div>
+              <div class="bar-wrapper"><div class="bar" style="height: 90%;"></div><span class="bar-label">T5</span></div>
+              <div class="bar-wrapper"><div class="bar" style="height: 60%;"></div><span class="bar-label">T6</span></div>
+              <div class="bar-wrapper"><div class="bar" style="height: 80%;"></div><span class="bar-label">T7</span></div>
+              <div class="bar-wrapper"><div class="bar" style="height: 95%;"></div><span class="bar-label">CN</span></div>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); text-align:center;">Biểu đồ cột mô tả phân bổ doanh thu bãi đỗ xe theo ngày</p>
           </div>
         </div>
       </div>
 
-    </div>
+      <!-- Tab 3: Diagnostics -->
+      <div class="tab-content" id="tab-diagnostics">
+        <div class="glass-card">
+          <div class="card-title">
+            <i data-lucide="terminal"></i> <span>Nhật Ký Giao Tiếp Giữa Các Microservices</span>
+            <button onclick="clearLogs()" class="btn btn-secondary" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-left: auto; border-radius: 8px;">
+              Xoá Logs
+          </button>
+          </div>
 
+          <!-- Tag Filters for Terminal Logs -->
+          <div class="diagnostics-filter-bar">
+            <div class="filter-badge active" id="log-filter-all" onclick="filterLogs('all')">Tất cả</div>
+            <div class="filter-badge" id="log-filter-gateway" onclick="filterLogs('gateway')">Gateway</div>
+            <div class="filter-badge" id="log-filter-auth" onclick="filterLogs('auth')">Auth</div>
+            <div class="filter-badge" id="log-filter-parking" onclick="filterLogs('parking')">Parking</div>
+            <div class="filter-badge" id="log-filter-booking" onclick="filterLogs('booking')">Booking</div>
+            <div class="filter-badge" id="log-filter-payment" onclick="filterLogs('payment')">Payment</div>
+            <div class="filter-badge" id="log-filter-report" onclick="filterLogs('report')">Report</div>
+          </div>
+
+          <div class="terminal-container">
+            <div class="terminal-header">
+              <div class="terminal-buttons">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+              </div>
+              <span>microservices_event_logger.log</span>
+            </div>
+            <div class="terminal-body" id="event-logs">
+              <!-- Event logs -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Profile / Auth -->
+      <div class="tab-content" id="tab-profile">
+        <div class="auth-grid">
+          <div class="glass-card" id="auth-card">
+            <div class="card-title">
+              <i data-lucide="lock"></i> <span>Tài Khoản & Quyền Truy Cập</span>
+            </div>
+            
+            <div class="tab-container" id="auth-tabs">
+              <button class="tab-btn active" onclick="switchAuthTab('login')">Đăng Nhập</button>
+              <button class="tab-btn" onclick="switchAuthTab('register')">Đăng Ký</button>
+            </div>
+
+            <!-- Login -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+              <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" class="form-control" placeholder="user@example.com" required value="member1@example.com">
+              </div>
+              <div class="form-group">
+                <label for="login-password">Mật khẩu</label>
+                <input type="password" id="login-password" class="form-control" placeholder="••••••••" required value="password123">
+              </div>
+              <button type="submit" class="btn">
+                <i data-lucide="log-in"></i> Đăng Nhập
+              </button>
+            </form>
+
+            <!-- Register -->
+            <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
+              <div class="form-group">
+                <label for="reg-name">Họ và tên</label>
+                <input type="text" id="reg-name" class="form-control" placeholder="Nguyễn Văn A" required>
+              </div>
+              <div class="form-group">
+                <label for="reg-email">Email</label>
+                <input type="email" id="reg-email" class="form-control" placeholder="user@example.com" required>
+              </div>
+              <div class="form-group">
+                <label for="reg-password">Mật khẩu</label>
+                <input type="password" id="reg-password" class="form-control" placeholder="••••••••" required>
+              </div>
+              <div class="form-group">
+                <label for="reg-plate">Biển số xe</label>
+                <input type="text" id="reg-plate" class="form-control" placeholder="30A-999.99" required>
+              </div>
+              <button type="submit" class="btn">
+                <i data-lucide="user-plus"></i> Tạo Tài Khoản
+              </button>
+            </form>
+
+            <!-- Profile -->
+            <div id="profile-container" style="display: none;" class="user-card">
+              <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                <div style="background: rgba(99, 102, 241, 0.15); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                  <i data-lucide="user"></i>
+                </div>
+                <div>
+                  <h3 id="profile-name" style="font-size: 1.15rem; font-weight: 600;">Xin chào!</h3>
+                  <p id="profile-role" style="font-size: 0.8rem; color: var(--primary); font-weight: 500;">Vai trò: USER</p>
+                </div>
+              </div>
+              <div class="user-info-row">
+                <span>Email</span>
+                <span id="profile-email">member1@example.com</span>
+              </div>
+              <div class="user-info-row">
+                <span>Biển số xe</span>
+                <span id="profile-plate" style="font-weight: 600; color: white;">30A-123.45</span>
+              </div>
+              
+              <button onclick="handleLogout()" class="btn btn-secondary" style="margin-top: 1rem; padding: 0.6rem;">
+                <i data-lucide="log-out"></i> Đăng Xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <!-- BOOKING MODAL -->
@@ -271,11 +340,6 @@
       </form>
     </div>
   </div>
-
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2026 Smart Parking System. Built with Microservices + Nginx Gateway + Docker Compose.</p>
-  </footer>
 
   <!-- Modular Scripts -->
   <script src="js/logger.js"></script>
