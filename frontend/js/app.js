@@ -34,6 +34,7 @@ function switchTab(tabId) {
     loadBookings();
   } else if (tabId === 'analytics') {
     loadReports();
+    loadPaymentHistory();
   } else if (tabId === 'hardware') {
     loadSensors();
     loadNotifications();

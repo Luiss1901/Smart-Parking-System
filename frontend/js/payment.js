@@ -84,3 +84,64 @@ function closePaymentModal() {
   const modal = document.getElementById("payment-modal");
   if (modal) modal.classList.remove("show");
 }
+
+async function loadPaymentHistory() {
+  const tbody = document.getElementById("payment-history-rows");
+  if (!tbody) return;
+
+  try {
+    addLog("gateway", "ROUTE /payments/", "Đang tải danh sách lịch sử giao dịch thanh toán...");
+    const res = await fetch(`${API}/payments/`);
+    const payments = await res.json();
+
+    if (res.ok) {
+      if (payments.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+              Chưa có giao dịch nào được thực hiện.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // Sort by newest first
+      payments.reverse();
+
+      let html = "";
+      payments.forEach(p => {
+        const dateStr = new Date(p.paidAt).toLocaleString();
+        html += `
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+            <td style="padding: 0.85rem 1rem; color: white; font-weight: 500;">#${p.id}</td>
+            <td style="padding: 0.85rem 1rem; color: var(--text-muted);">Booking #${p.bookingId}</td>
+            <td style="padding: 0.85rem 1rem; color: white;">${p.amount.toLocaleString()}đ</td>
+            <td style="padding: 0.85rem 1rem; color: var(--success); font-weight: 500;">$${p.usdAmount} USD</td>
+            <td style="padding: 0.85rem 1rem; color: var(--text-muted); font-size: 0.8rem;">${dateStr}</td>
+            <td style="padding: 0.85rem 1rem;">
+              <span class="badge-status" style="background: rgba(16,185,129,0.08); color: var(--success); padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem;">${p.status}</span>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    } else {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--danger); padding: 2rem;">
+            Lỗi nạp lịch sử giao dịch: ${payments.message || 'Lỗi server'}
+          </td>
+        </tr>
+      `;
+    }
+  } catch (err) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; color: var(--danger); padding: 2rem;">
+          Không thể kết nối Payment Service: ${err.message}
+        </td>
+      </tr>
+    `;
+  }
+}

@@ -7,6 +7,8 @@ app.use(cors());
 app.use(express.json());
 
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:3000";
+const BOOKING_SERVICE_URL = process.env.BOOKING_SERVICE_URL || "http://booking-service:3000";
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://auth-service:3000";
 
 let payments = [];
 
@@ -125,17 +127,50 @@ app.post("/pay", async (req, res) => {
 
   payments.push(payment);
 
-  // Call Notification Service
+  // Call Notification Service with resolved user email
   try {
-    fetch(`${NOTIFICATION_SERVICE_URL}/notify`, {
+    // 1. Fetch booking details from Booking Service
+    const bookingRes = await fetch(`${BOOKING_SERVICE_URL}/`);
+    const bookings = await bookingRes.json();
+    const booking = bookings.find(b => b.id == bookingId);
+
+    let userEmail = "member1@example.com"; // default fallback
+    let userName = "Khách";
+    if (booking) {
+      // 2. Fetch user details from Auth Service
+      const authRes = await fetch(`${AUTH_SERVICE_URL}/users`);
+      const users = await authRes.json();
+      const user = users.find(u => u.id == booking.userId);
+      if (user) {
+        userEmail = user.email;
+        userName = user.name;
+      }
+    }
+
+    // 3. Send email via Notification Service
+    await fetch(`${NOTIFICATION_SERVICE_URL}/notify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         type: "Email",
-        message: `Hóa đơn đã THANH TOÁN THÀNH CÔNG (External Gateway). Số tiền: ${amount.toLocaleString()}đ (~$${usdAmount} USD).`
+        message: `Gửi tới: ${userEmail} (${userName})\nNội dung: Hóa đơn đã THANH TOÁN THÀNH CÔNG qua cổng VNPay. Mã giao dịch: #${payment.id}. Số tiền: ${amount.toLocaleString()}đ (~$${usdAmount} USD).`
       })
-    }).catch(err => console.log("Silent error calling notify in pay-service:", err.message));
-  } catch(e) {}
+    });
+  } catch(err) {
+    console.log("Error orchestrating user email notify in payment-service:", err.message);
+    
+    // Fallback notification
+    try {
+      fetch(`${NOTIFICATION_SERVICE_URL}/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "Email",
+          message: `Hóa đơn đã THANH TOÁN THÀNH CÔNG (External Gateway). Số tiền: ${amount.toLocaleString()}đ (~$${usdAmount} USD).`
+        })
+      });
+    } catch(e) {}
+  }
 
   res.json({
     message: "Thanh toán thành công qua cổng liên kết",
