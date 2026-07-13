@@ -1,77 +1,191 @@
-version: "3.8"
+version: '3.8'
 
 services:
+  load-balancer:
+    build:
+      context: ./load-balancer
+    ports:
+      - "8443:443"
+    depends_on:
+      - api-gateway
+
   api-gateway:
-    image: nginx:latest
-    container_name: api-gateway
+    build:
+      context: ./api-gateway
     ports:
       - "8080:80"
-    volumes:
-      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - auth-service
+      - authentication-service
+      - user-management-service
       - parking-service
+      - device-service
       - booking-service
       - payment-service
       - report-service
       - notification-service
+      - frontend
 
-  auth-service:
-    build: ./auth-service
-    container_name: auth-service
+  authentication-service:
+    build:
+      context: ./authentication-service
     ports:
       - "3001:3000"
+    depends_on:
+      - booking-db-primary
+      - booking-db-replica
     environment:
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3000
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/authdb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/authdb
 
+  user-management-service:
+    build:
+      context: ./user-management-service
+    ports:
+      - "3008:3000"
+    depends_on:
+      - booking-db-primary
+      - booking-db-replica
+    environment:
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/userdb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/userdb
 
   parking-service:
-    build: ./parking-service
-    container_name: parking-service
+    build:
+      context: ./parking-service
     ports:
       - "3002:3000"
+    depends_on:
+      - parking-db-primary
+    environment:
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@parking-db-primary:5432/parkingdb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@parking-db-primary:5432/parkingdb
+
+  device-service:
+    build:
+      context: ./device-service
+    ports:
+      - "3007:3000"
+      - "9000:9000"
+      - "554:554"
+    depends_on:
+      - parking-service
+      - booking-db-primary
+      - booking-db-replica
+    environment:
+      - PARKING_SERVICE_URL=http://parking-service:3000
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/devicedb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/devicedb
+
+  booking-db-primary:
+    image: bitnami/postgresql:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_USERNAME=myuser
+      - POSTGRESQL_PASSWORD=mypassword
+      - POSTGRESQL_DATABASE=bookingdb
+    volumes:
+      - ./booking-service/pg-primary-data:/bitnami/postgresql
+      - ./pg-init:/docker-entrypoint-initdb.d
+
+  booking-db-replica:
+    image: bitnami/postgresql:latest
+    depends_on:
+      - booking-db-primary
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=booking-db-primary
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - POSTGRESQL_USERNAME=myuser
+      - POSTGRESQL_PASSWORD=mypassword
+    volumes:
+      - ./booking-service/pg-replica-data:/bitnami/postgresql
+
+  payment-db-primary:
+    image: bitnami/postgresql:latest
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRESQL_USERNAME=myuser
+      - POSTGRESQL_PASSWORD=mypassword
+      - POSTGRESQL_DATABASE=paymentdb
+    volumes:
+      - ./payment-service/pg-primary-data:/bitnami/postgresql
+
+  parking-db-primary:
+    image: bitnami/postgresql:latest
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRESQL_USERNAME=myuser
+      - POSTGRESQL_PASSWORD=mypassword
+      - POSTGRESQL_DATABASE=parkingdb
+    volumes:
+      - ./parking-service/pg-primary-data:/bitnami/postgresql
 
   booking-service:
-    build: ./booking-service
-    container_name: booking-service
+    build:
+      context: ./booking-service
     ports:
       - "3003:3000"
     depends_on:
       - parking-service
+      - booking-db-primary
+      - booking-db-replica
     environment:
-      - PARKING_SERVICE_URL=http://parking-service:3000
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3000
-      - AUTH_SERVICE_URL=http://auth-service:3000
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/bookingdb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/bookingdb
 
   payment-service:
-    build: ./payment-service
-    container_name: payment-service
+    build:
+      context: ./payment-service
     ports:
       - "3004:3000"
     depends_on:
       - booking-service
+      - payment-db-primary
     environment:
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@payment-db-primary:5432/paymentdb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@payment-db-primary:5432/paymentdb
+      - USER_MANAGEMENT_SERVICE_URL=http://user-management-service:3000
+      - BOOKING_SERVICE_URL=http://booking-service:3000
       - NOTIFICATION_SERVICE_URL=http://notification-service:3000
+    env_file:
+      - ./payment-service/.env
 
   report-service:
-    build: ./report-service
-    container_name: report-service
+    build:
+      context: ./report-service
     ports:
       - "3005:3000"
+    depends_on:
+      - booking-db-primary
+      - booking-db-replica
     environment:
-      - PARKING_SERVICE_URL=http://parking-service:3000
-      - PAYMENT_SERVICE_URL=http://payment-service:3000
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/reportdb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/reportdb
 
   notification-service:
-    build: ./notification-service
-    container_name: notification-service
+    build:
+      context: ./notification-service
     ports:
       - "3006:3000"
+    depends_on:
+      - booking-db-primary
+      - booking-db-replica
+    environment:
+      - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/notificationdb
+      - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/notificationdb
+    env_file:
+      - ./notification-service/.env
 
   frontend:
-    image: nginx:latest
-    container_name: frontend
+    build:
+      context: ./frontend
     ports:
       - "5173:80"
-    volumes:
-      - ./frontend:/usr/share/nginx/html

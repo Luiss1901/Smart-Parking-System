@@ -1,65 +1,9 @@
-const express = require("express");
-const cors = require("cors");
+const app = require('./src/app');
+const { initDb } = require('./src/config/db');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL || "http://payment-service:3000";
-const PARKING_SERVICE_URL = process.env.PARKING_SERVICE_URL || "http://parking-service:3000";
-
-app.get("/revenue", async (req, res) => {
-  let totalRevenue = 500000;
-  let totalPayments = 25;
-
-  try {
-    const response = await fetch(`${PAYMENT_SERVICE_URL}/`);
-    if (response.ok) {
-      const payments = await response.json();
-      payments.forEach(p => {
-        totalRevenue += p.amount;
-        totalPayments += 1;
-      });
-    }
-  } catch (error) {
-    console.log("Error fetching from payment-service, using default mock data", error.message);
-  }
-
-  res.json({
-    date: new Date().toISOString().slice(0, 10),
-    totalRevenue,
-    totalPayments
-  });
-});
-
-app.get("/usage", async (req, res) => {
-  let totalSlots = 100;
-  let occupiedSlots = 65;
-  let availableSlots = 35;
-
-  try {
-    const response = await fetch(`${PARKING_SERVICE_URL}/slots`);
-    if (response.ok) {
-      const slots = await response.json();
-      totalSlots = slots.length;
-      occupiedSlots = slots.filter(s => s.status === "OCCUPIED" || s.status === "RESERVED").length;
-      availableSlots = slots.filter(s => s.status === "AVAILABLE").length;
-    }
-  } catch (error) {
-    console.log("Error fetching from parking-service, using default mock data", error.message);
-  }
-
-  const usageRate = totalSlots > 0 ? `${Math.round((occupiedSlots / totalSlots) * 100)}%` : "0%";
-
-  res.json({
-    totalSlots,
-    occupiedSlots,
-    availableSlots,
-    usageRate
-  });
-});
+setTimeout(initDb, 5000);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Report Service running on port ${PORT}`);
+    console.log(`Report Service running on port ${PORT}`);
 });

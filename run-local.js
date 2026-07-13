@@ -9,7 +9,7 @@ const SERVICES = [
   { name: 'booking-service', dir: 'booking-service', port: 3003, env: { PARKING_SERVICE_URL: 'http://localhost:3002', NOTIFICATION_SERVICE_URL: 'http://localhost:3006', AUTH_SERVICE_URL: 'http://localhost:3001' } },
   { name: 'payment-service', dir: 'payment-service', port: 3004, env: { NOTIFICATION_SERVICE_URL: 'http://localhost:3006' } },
   { name: 'report-service', dir: 'report-service', port: 3005, env: { PARKING_SERVICE_URL: 'http://localhost:3002', PAYMENT_SERVICE_URL: 'http://localhost:3004' } },
-  { name: 'notification-service', dir: 'notification-service', port: 3006, env: {} }
+  { name: 'notification-service', dir: 'notification-service', port: 3006, env: { SMTP_USER: process.env.SMTP_USER, SMTP_PASS: process.env.SMTP_PASS } }
 ];
 
 console.log("=== SMART PARKING SYSTEM LOCAL RUNNER ===");
@@ -20,7 +20,7 @@ SERVICES.forEach(service => {
   const servicePath = path.join(__dirname, service.dir);
   const nodeModulesPath = path.join(servicePath, 'node_modules');
   
-  if (!fs.existsSync(nodeModulesPath)) {
+  if (true) {
     console.log(`-> Đang cài đặt dependencies cho ${service.name}...`);
     try {
       execSync('npm install', { cwd: servicePath, stdio: 'inherit' });
@@ -135,54 +135,31 @@ gateway.listen(8080, () => {
   console.log("✔ [API Gateway] Đang chạy tại http://localhost:8080");
 });
 
-// Frontend Server (Port 5173)
-const mimeTypes = {
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.js': 'text/javascript',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml'
-};
-
-const frontendServer = http.createServer((req, res) => {
-  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
-  let filePath = path.join(__dirname, 'frontend', parsedUrl.pathname);
-  if (parsedUrl.pathname === '/') {
-    filePath = path.join(__dirname, 'frontend', 'index.html');
-  }
-
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('404 Không Tìm Thấy File');
-      return;
-    }
-
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
-
-    res.writeHead(200, { 'Content-Type': contentType });
-    fs.createReadStream(filePath).pipe(res);
-  });
+// Frontend Server (Port 5173) - Using Vite Dev Server
+console.log("-> Khởi chạy Frontend (Vite)...");
+const frontendProcess = spawn(/^win/.test(process.platform) ? 'npm.cmd' : 'npm', ['run', 'dev'], {
+  cwd: path.join(__dirname, 'frontend'),
+  stdio: 'inherit'
 });
 
-frontendServer.listen(5173, () => {
-  console.log("✔ [Frontend Web] Đang chạy tại http://localhost:5173");
+frontendProcess.on('error', (err) => {
+  console.error(`[Frontend ERROR] ${err.message}`);
+});
+
+processes.push(frontendProcess);
+
+setTimeout(() => {
   console.log("\n=========================================");
   console.log("HỆ THỐNG ĐÃ SẴN SÀNG HOẠT ĐỘNG KHÔNG CẦN DOCKER!");
   console.log("👉 Vui lòng mở trình duyệt và truy cập: http://localhost:5173");
   console.log("Nhấn Ctrl+C để dừng toàn bộ hệ thống.");
   console.log("=========================================\n");
 
-  // Auto open browser (supports Windows, Mac, Linux)
   const openCmd = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open';
   try {
     spawn(openCmd, ['http://localhost:5173'], { shell: true });
   } catch(e) {}
-});
+}, 2000);
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
