@@ -41,9 +41,24 @@ const cancelBooking = async (req, res, next) => {
     }
 };
 
+const extendBooking = async (req, res, next) => {
+    try {
+        const bookingId = parseInt(req.params.id, 10);
+        const { endTime } = req.body;
+        if (!endTime) {
+            return res.status(400).json({ success: false, message: 'Missing endTime' });
+        }
+        const booking = await bookingService.extendBooking(bookingId, endTime);
+        res.json({ success: true, message: 'Booking extended successfully', data: booking });
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     getAllBookings,
     getBookingsByUser,
     createBooking,
-    cancelBooking
+    cancelBooking,
+    extendBooking
 };

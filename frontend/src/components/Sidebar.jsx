@@ -5,7 +5,8 @@ import {
   TrendingUp, 
   Terminal, 
   Cpu, 
-  User 
+  User,
+  Grid
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -31,6 +32,10 @@ const Sidebar = ({ activeTab, onTabChange }) => {
     { id: 'hardware', icon: Cpu, label: 'Giả Lập Thiết Bị' },
     { id: 'profile', icon: User, label: 'Hồ Sơ Cá Nhân' },
   ];
+
+  if (currentUser && currentUser.role === 'ADMIN') {
+    menuItems.splice(4, 0, { id: 'slots', icon: Grid, label: 'Quản Lý Bãi Đỗ' });
+  }
 
   return (
     <aside className="sidebar">

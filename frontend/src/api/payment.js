@@ -14,3 +14,9 @@ export const createPaymentUrlApi = async (bookingId, userId, amount) => {
     body: JSON.stringify({ bookingId, userId, amount })
   });
 };
+
+export const refundPaymentApi = async (paymentId) => {
+  return await apiFetch(`/payments/${paymentId}/refund`, {
+    method: "POST"
+  });
+};

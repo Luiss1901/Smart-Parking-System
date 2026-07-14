@@ -23,7 +23,7 @@ const verifyToken = (req, res, next) => {
 };
 
 const requireAdmin = (req, res, next) => {
-    if (!req.user || req.user.role !== 'admin') {
+    if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'ADMIN')) {
         return res.status(403).json({ success: false, message: 'Require Admin Role' });
     }
     next();

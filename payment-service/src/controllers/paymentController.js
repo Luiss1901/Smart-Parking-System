@@ -65,11 +65,26 @@ const getHistoryByUser = async (req, res, next) => {
     }
 };
 
+const refundPayment = async (req, res, next) => {
+    try {
+        const paymentId = parseInt(req.params.id, 10);
+        const ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+        const user = req.user; // from verifyToken if we use it, or fallback to 'Admin'
+        const createBy = user ? user.email : 'Admin';
+        
+        const result = await paymentService.refundPayment(paymentId, ipAddr, createBy);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     createPaymentUrl,
     vnpayReturn,
     vnpayIpn,
     calculate,
     getAllPayments,
-    getHistoryByUser
+    getHistoryByUser,
+    refundPayment
 };

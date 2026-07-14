@@ -8,5 +8,6 @@ router.get('/vnpay-ipn', paymentController.vnpayIpn);
 router.post('/calculate', paymentController.calculate);
 router.get('/history/:userId', paymentController.getHistoryByUser);
 router.get('/', paymentController.getAllPayments);
+router.post('/:id/refund', paymentController.refundPayment);
 
 module.exports = router;

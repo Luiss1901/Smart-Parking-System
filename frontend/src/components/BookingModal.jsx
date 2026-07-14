@@ -7,7 +7,7 @@ import { showToast } from './Toast';
 const BookingModal = ({ slot, onClose, onSuccess }) => {
   const { currentUser } = useAuth();
   const [hours, setHours] = useState(2);
-  const [vehicleType, setVehicleType] = useState('CAR');
+  const [vehicleType, setVehicleType] = useState(slot.type === 'MOTORBIKE' ? 'BIKE' : (slot.type || 'CAR'));
 
   const getPrice = () => {
     return vehicleType === 'CAR' ? 20000 : 5000;
@@ -54,10 +54,10 @@ const BookingModal = ({ slot, onClose, onSuccess }) => {
             <label>Loại phương tiện</label>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)', cursor: 'pointer' }}>
-                <input type="radio" name="vehicleType" value="CAR" checked={vehicleType === 'CAR'} onChange={() => setVehicleType('CAR')} /> Xe Ô tô (CAR)
+                <input type="radio" name="vehicleType" value="CAR" checked={vehicleType === 'CAR'} disabled={slot.type === 'MOTORBIKE'} onChange={() => setVehicleType('CAR')} /> Xe Ô tô (CAR)
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)', cursor: 'pointer' }}>
-                <input type="radio" name="vehicleType" value="BIKE" checked={vehicleType === 'BIKE'} onChange={() => setVehicleType('BIKE')} /> Xe Máy (BIKE)
+                <input type="radio" name="vehicleType" value="BIKE" checked={vehicleType === 'BIKE'} disabled={slot.type === 'CAR'} onChange={() => setVehicleType('BIKE')} /> Xe Máy (BIKE)
               </label>
             </div>
           </div>

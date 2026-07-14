@@ -20,3 +20,10 @@ export const cancelBookingApi = async (bookingId) => {
     method: "PUT"
   });
 };
+
+export const extendBookingApi = async (bookingId, endTime) => {
+  return await apiFetch(`/bookings/${bookingId}/extend`, {
+    method: "PUT",
+    body: JSON.stringify({ endTime })
+  });
+};

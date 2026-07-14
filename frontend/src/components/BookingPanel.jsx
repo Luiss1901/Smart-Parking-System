@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Receipt } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getBookingsByUserApi, cancelBookingApi } from '../api/booking';
+import { getBookingsByUserApi, cancelBookingApi, extendBookingApi } from '../api/booking';
 import { getPaymentsApi, createPaymentUrlApi } from '../api/payment';
 import { showToast } from './Toast';
 import BookingItem from './BookingItem';
@@ -71,6 +71,27 @@ const BookingPanel = forwardRef((props, ref) => {
     }
   };
 
+  const handleExtend = async (bookingId) => {
+    const hours = window.prompt("Nhập số giờ muốn gia hạn thêm (ví dụ: 1, 2):");
+    if (!hours || isNaN(hours)) return;
+    
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+
+    const currentEnd = new Date(booking.endTime);
+    currentEnd.setHours(currentEnd.getHours() + parseInt(hours));
+    
+    const newEndTime = currentEnd.toISOString();
+    
+    try {
+      await extendBookingApi(bookingId, newEndTime);
+      showToast("Đã gia hạn thành công!", "success");
+      fetchBookingsAndPayments();
+    } catch (err) {
+      // apiFetch shows error
+    }
+  };
+
   return (
     <div className="glass-card">
       <div className="card-title">
@@ -91,7 +112,8 @@ const BookingPanel = forwardRef((props, ref) => {
           </div>
         ) : (
           bookings.map(booking => {
-            const isPaid = payments.some(p => p.bookingId === booking.id);
+            const payment = payments.find(p => p.bookingId === booking.id);
+            const isPaid = payment && payment.status === 'PAID';
             return (
               <BookingItem 
                 key={booking.id} 
@@ -99,6 +121,7 @@ const BookingPanel = forwardRef((props, ref) => {
                 isPaid={isPaid} 
                 onCancel={handleCancel}
                 onPay={() => handlePay(booking)}
+                onExtend={() => handleExtend(booking.id)}
               />
             );
           })

@@ -10,3 +10,10 @@ export const updateProfileApi = async (userId, data) => {
     body: JSON.stringify(data)
   });
 };
+
+export const changePasswordApi = async (userId, oldPassword, newPassword) => {
+  return await apiFetch(`/users/${userId}/change-password`, {
+    method: "PUT",
+    body: JSON.stringify({ oldPassword, newPassword })
+  });
+};

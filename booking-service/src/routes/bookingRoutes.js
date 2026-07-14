@@ -8,4 +8,6 @@ router.get('/user/:userId', verifyToken, bookingController.getBookingsByUser);
 router.post('/', verifyToken, bookingController.createBooking);
 router.put('/:id/cancel', verifyToken, bookingController.cancelBooking);
 
+router.put('/:id/extend', verifyToken, bookingController.extendBooking);
+
 module.exports = router;

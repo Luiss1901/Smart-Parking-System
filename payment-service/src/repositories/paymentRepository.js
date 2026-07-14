@@ -10,6 +10,11 @@ const getPaymentByTxnRef = async (txnRef) => {
     return result.rows[0];
 };
 
+const getPaymentById = async (id) => {
+    const result = await poolReplica.query('SELECT * FROM payments WHERE id = $1', [id]);
+    return result.rows[0];
+};
+
 const getPaymentsByUserId = async (userId) => {
     const result = await poolReplica.query('SELECT * FROM payments WHERE "userId" = $1 ORDER BY id DESC', [userId]);
     return result.rows;
@@ -40,6 +45,7 @@ const updatePaymentStatus = async (txnRef, status, usdAmount = null, paidAt = nu
 
 module.exports = {
     getAllPayments,
+    getPaymentById,
     getPaymentByTxnRef,
     getPaymentsByUserId,
     createPayment,

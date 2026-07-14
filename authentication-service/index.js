@@ -85,10 +85,17 @@ app.post("/login", async (req, res) => {
       const account = userRes.rows[0];
       if (!account) return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
       
-      const isMatch = await bcrypt.compare(password, account.password);
+      let isMatch = false;
+      if (!account.password.startsWith('$2b$') && !account.password.startsWith('$2a$') && !account.password.startsWith('$2y$')) {
+          if (account.password === password) {
+              isMatch = true;
+              const hashedMigrated = await bcrypt.hash(password, 10);
+              await poolPrimary.query('UPDATE accounts SET password = $1 WHERE id = $2', [hashedMigrated, account.id]);
+          }
+      } else {
+          isMatch = await bcrypt.compare(password, account.password);
+      }
       if (!isMatch) return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
-      
-      // Fetch profile from user-management-service
       let profile = {};
       try {
           const profileRes = await axios.get(`${USER_MANAGEMENT_SERVICE_URL}/${account.id}`);
@@ -103,6 +110,34 @@ app.post("/login", async (req, res) => {
       res.json({ message: "Đăng nhập thành công", token, user });
   } catch (err) {
       res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+});
+
+app.put("/change-password/:id", async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.params.id;
+  try {
+      const userRes = await poolReplica.query('SELECT * FROM accounts WHERE id = $1', [userId]);
+      const account = userRes.rows[0];
+      if (!account) return res.status(404).json({ message: "Không tìm thấy người dùng" });
+
+      let isMatch = false;
+      if (!account.password.startsWith('$2b$') && !account.password.startsWith('$2a$') && !account.password.startsWith('$2y$')) {
+          if (account.password === oldPassword) {
+              isMatch = true;
+          }
+      } else {
+          isMatch = await bcrypt.compare(oldPassword, account.password);
+      }
+
+      if (!isMatch) return res.status(400).json({ message: "Mật khẩu cũ không chính xác" });
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      await poolPrimary.query('UPDATE accounts SET password = $1 WHERE id = $2', [hashedNewPassword, userId]);
+      
+      res.json({ message: "Đổi mật khẩu thành công" });
+  } catch (err) {
+      res.status(500).json({ message: "Lỗi hệ thống", error: err.message });
   }
 });
 

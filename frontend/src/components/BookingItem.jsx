@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BookingItem = ({ booking, isPaid, onCancel, onPay }) => {
+const BookingItem = ({ booking, isPaid, onCancel, onPay, onExtend }) => {
   let statusBadge = <span className="badge-status badge-reserved">Chưa Thanh Toán</span>;
   let payButton = null;
   let cancelButton = null;
@@ -22,7 +22,6 @@ const BookingItem = ({ booking, isPaid, onCancel, onPay }) => {
     );
   }
 
-  // Formatting times (assuming booking.startTime is something like "2026-07-10 14:00:00")
   const startFormat = booking.startTime.slice(11, 16);
   const endFormat = booking.endTime.slice(11, 16);
 
@@ -35,6 +34,11 @@ const BookingItem = ({ booking, isPaid, onCancel, onPay }) => {
       </div>
       <div className="booking-actions">
         {payButton}
+        {booking.status !== "CANCELLED" && (
+          <button onClick={() => onExtend(booking.id)} className="btn btn-secondary" style={{ width: 'auto', padding: '0.4rem 0.8rem', fontSize: '0.85rem', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+            Gia hạn
+          </button>
+        )}
         {cancelButton}
       </div>
     </div>

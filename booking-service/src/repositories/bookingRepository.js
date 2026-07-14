@@ -31,10 +31,32 @@ const cancelBooking = async (id) => {
     return result.rows[0];
 };
 
+const getOverlappingBookings = async (slotId, excludeBookingId, startTime, endTime) => {
+    const result = await poolReplica.query(
+        `SELECT * FROM bookings 
+         WHERE "slotId" = $1 
+         AND id != $2 
+         AND status != 'cancelled'
+         AND "startTime" < $4 AND "endTime" > $3`,
+        [slotId, excludeBookingId, startTime, endTime]
+    );
+    return result.rows;
+};
+
+const updateBookingEndTime = async (id, newEndTime) => {
+    const result = await poolPrimary.query(
+        'UPDATE bookings SET "endTime" = $1 WHERE id = $2 RETURNING *',
+        [newEndTime, id]
+    );
+    return result.rows[0];
+};
+
 module.exports = {
     getAllBookings,
     getBookingById,
     getBookingsByUser,
     createBooking,
-    cancelBooking
+    cancelBooking,
+    getOverlappingBookings,
+    updateBookingEndTime
 };

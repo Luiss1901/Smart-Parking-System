@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, DollarSign, Activity, Info, List, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { getRevenueApi, getUsageApi } from '../api/reports';
-import { getPaymentsHistoryApi } from '../api/payment';
+import { getPaymentsHistoryApi, refundPaymentApi } from '../api/payment';
 import { useAuth } from '../context/AuthContext';
 
 const AnalyticsTab = () => {
@@ -179,9 +179,26 @@ const AnalyticsTab = () => {
                       </td>
                       <td style={{ padding: '1rem 0.5rem' }}>
                         {hist.status === 'PAID' ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '0.8rem' }}>
-                            <CheckCircle size={14} /> PAID
-                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '0.8rem' }}>
+                              <CheckCircle size={14} /> PAID
+                            </span>
+                            <button 
+                              onClick={async () => {
+                                if (!window.confirm("Bạn có chắc chắn muốn hoàn tiền? Đặt chỗ sẽ bị hủy.")) return;
+                                try {
+                                  await refundPaymentApi(hist.id);
+                                  alert("Hoàn tiền thành công!");
+                                  window.location.reload();
+                                } catch (err) {
+                                  alert("Lỗi: " + err.message);
+                                }
+                              }} 
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', background: 'var(--danger)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Hoàn Tiền
+                            </button>
+                          </div>
                         ) : hist.status === 'FAILED' ? (
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.8rem' }}>
                             <XCircle size={14} /> FAILED

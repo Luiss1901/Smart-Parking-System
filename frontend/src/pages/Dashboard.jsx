@@ -7,6 +7,7 @@ import AnalyticsTab from '../components/AnalyticsTab';
 import DiagnosticsTab from '../components/DiagnosticsTab';
 import HardwareTab from '../components/HardwareTab';
 import ProfileTab from '../components/ProfileTab';
+import SlotsAdminTab from '../components/SlotsAdminTab';
 import Toast from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import { TrendingUp, Terminal, Cpu, User } from 'lucide-react';
@@ -66,6 +67,8 @@ const Dashboard = () => {
         return <DiagnosticsTab />;
       case 'hardware':
         return <HardwareTab />;
+      case 'slots':
+        return <SlotsAdminTab />;
       case 'profile':
         return <ProfileTab />;
       default:
@@ -79,6 +82,7 @@ const Dashboard = () => {
       case 'analytics': return 'Báo Cáo & Phân Tích';
       case 'diagnostics': return 'Nhật Ký Giao Tiếp';
       case 'hardware': return 'Giả Lập Thiết Bị Phần Cứng';
+      case 'slots': return 'Quản Lý Bãi Đỗ';
       case 'profile': return 'Hồ Sơ Cá Nhân';
       default: return '';
     }

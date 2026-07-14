@@ -1,0 +1,7 @@
+node_modules/
+pg-primary-data/
+pg-replica-data/
+.env
+dist/
+build/
+.DS_Store
