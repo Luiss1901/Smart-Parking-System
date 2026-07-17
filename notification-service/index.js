@@ -43,6 +43,67 @@ const initDb = async () => {
 };
 setTimeout(initDb, 5000);
 
+const sendRealEmail = async (to, subject, htmlContent) => {
+    if (EMAIL_USER && EMAIL_APP_PASSWORD) {
+        try {
+            await transporter.sendMail({
+                from: `"Smart Parking System" <${EMAIL_USER}>`,
+                to: to,
+                subject: subject,
+                html: htmlContent
+            });
+            console.log(`[Notification Service] Successfully sent real email to ${to}`);
+        } catch (err) {
+            console.log(`[Notification Service] Failed to send real email to ${to}:`, err.message);
+        }
+    } else {
+        console.log(`[Notification Service] EMAIL_USER missing. Email skipped. Only logged locally.`);
+    }
+
+    try {
+        await poolPrimary.query(
+            'INSERT INTO notifications (type, "to", subject, message, "sentAt") VALUES ($1, $2, $3, $4, $5)',
+            ['Email', to, subject, "HTML Content", new Date().toISOString()]
+        );
+    } catch (err) {
+        console.error("DB Insert Error", err.message);
+    }
+};
+
+const rabbitmq = require('./utils/rabbitmq');
+
+const initSubscribers = () => {
+    rabbitmq.subscribeEvent('booking.created', 'q.notification.booking_created', async (data) => {
+        console.log("[Notification] Received booking.created:", data);
+        const subject = "Smart Parking - Xác nhận đặt chỗ";
+        // Dummy email extraction or fetching from user-service can be done. For now, use a default if missing.
+        const userEmail = data.userEmail || "member1@example.com";
+        const html = `<p>Bạn đã đặt chỗ đỗ xe thành công.</p>
+                      <p>Booking ID: #${data.booking ? data.booking.id : 'N/A'}</p>`;
+        await sendRealEmail(userEmail, subject, html);
+    });
+
+    rabbitmq.subscribeEvent('payment.completed', 'q.notification.payment_completed', async (data) => {
+        console.log("[Notification] Received payment.completed:", data);
+        const subject = "Smart Parking - Hóa đơn thanh toán thành công";
+        const userEmail = "member1@example.com"; // Should fetch user data based on data.userId in reality
+        const html = `<p>Hóa đơn đặt chỗ xe (Booking #${data.bookingId}) đã thanh toán <b>THÀNH CÔNG</b> qua cổng VNPay.</p>
+                      <p>Số tiền: <b>${(data.amount || 0).toLocaleString()}đ</b></p>
+                      <p>Mã giao dịch: ${data.txnRef}</p>`;
+        await sendRealEmail(userEmail, subject, html);
+    });
+
+    rabbitmq.subscribeEvent('payment.refunded', 'q.notification.payment_refunded', async (data) => {
+        console.log("[Notification] Received payment.refunded:", data);
+        const subject = "Smart Parking - Hoàn tiền thành công";
+        const userEmail = "member1@example.com";
+        const html = `<p>Hóa đơn (Txn: ${data.txnRef}) với số tiền <b>${(data.amount || 0).toLocaleString()}đ</b> đã được hoàn tiền.</p>
+                      <p>Chỗ đỗ xe (Booking #${data.bookingId}) đã bị hủy.</p>`;
+        await sendRealEmail(userEmail, subject, html);
+    });
+};
+initSubscribers();
+
 app.post("/send-email", async (req, res) => {
   const { to, subject, html } = req.body;
 
@@ -50,36 +111,10 @@ app.post("/send-email", async (req, res) => {
     return res.status(400).json({ message: "Thiếu thông tin người nhận, tiêu đề hoặc nội dung email" });
   }
 
-  if (EMAIL_USER && EMAIL_APP_PASSWORD) {
-    try {
-      await transporter.sendMail({
-        from: `"Smart Parking System" <${EMAIL_USER}>`,
-        to: to,
-        subject: subject,
-        html: html
-      });
-      console.log(`[Notification Service] Successfully sent real email to ${to}`);
-    } catch (err) {
-      console.log(`[Notification Service] Failed to send real email to ${to}:`, err.message);
-    }
-  } else {
-    console.log(`[Notification Service] EMAIL_USER or EMAIL_APP_PASSWORD missing. Email skipped. Only logged locally.`);
-  }
-
-  let notification = null;
-  try {
-      const insertRes = await poolPrimary.query(
-          'INSERT INTO notifications (type, "to", subject, message, "sentAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-          ['Email', to, subject, "HTML Content", new Date().toISOString()]
-      );
-      notification = insertRes.rows[0];
-  } catch (err) {
-      console.error("DB Insert Error", err.message);
-  }
+  await sendRealEmail(to, subject, html);
 
   res.json({
-    message: "Gửi thông báo thành công",
-    notification
+    message: "Gửi thông báo thành công"
   });
 });
 

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const bookingRepository = require('../repositories/bookingRepository');
+const rabbitmq = require('../utils/rabbitmq');
 
 const getAllBookings = async () => {
     return await bookingRepository.getAllBookings();
@@ -25,6 +26,14 @@ const createBooking = async (data) => {
     
     await reserveSlot(slotId);
     const booking = await bookingRepository.createBooking(userId, slotId, startTime, endTime);
+    
+    // Publish booking created event
+    try {
+        await rabbitmq.publishEvent('booking.created', { booking });
+    } catch(err) {
+        console.error("Error publishing booking.created event:", err.message);
+    }
+    
     return booking;
 };
 

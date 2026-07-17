@@ -71,9 +71,12 @@ services:
     depends_on:
       parking-db-primary:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@parking-db-primary:5432/parkingdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@parking-db-primary:5432/parkingdb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
 
   device-service:
     build:
@@ -89,10 +92,13 @@ services:
         condition: service_healthy
       booking-db-replica:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - PARKING_SERVICE_URL=http://parking-service:3000
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/devicedb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/devicedb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
 
   booking-db-primary:
     image: bitnami/postgresql:latest
@@ -179,9 +185,12 @@ services:
         condition: service_healthy
       booking-db-replica:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/bookingdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/bookingdb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
 
   payment-service:
     build:
@@ -193,12 +202,15 @@ services:
         condition: service_started
       payment-db-primary:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@payment-db-primary:5432/paymentdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@payment-db-primary:5432/paymentdb
       - USER_MANAGEMENT_SERVICE_URL=http://user-management-service:3000
       - BOOKING_SERVICE_URL=http://booking-service:3000
       - NOTIFICATION_SERVICE_URL=http://notification-service:3000
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     env_file:
       - ./payment-service/.env
 
@@ -212,9 +224,12 @@ services:
         condition: service_healthy
       booking-db-replica:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/reportdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/reportdb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
 
   notification-service:
     build:
@@ -226,9 +241,12 @@ services:
         condition: service_healthy
       booking-db-replica:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/notificationdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/notificationdb
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     env_file:
       - ./notification-service/.env
 
@@ -237,3 +255,14 @@ services:
       context: ./frontend
     ports:
       - "5173:80"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 10

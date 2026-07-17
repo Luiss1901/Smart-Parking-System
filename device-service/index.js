@@ -3,6 +3,7 @@ const cors = require("cors");
 const axios = require("axios");
 const { Pool } = require("pg");
 const net = require("net");
+const rabbitmq = require('./utils/rabbitmq');
 
 const app = express();
 app.get("/health", (req, res) => res.status(200).json({ status: "OK", service: "device-service" }));
@@ -55,13 +56,18 @@ app.post("/simulate/camera", async (req, res) => {
   const status = action === 'ENTER' ? 'OCCUPIED' : 'AVAILABLE';
   
   try {
-    await axios.put(`${PARKING_SERVICE_URL}/slots/${slotId}/status`, { status });
+    // Keep HTTP call if needed, but the plan said "Bỏ gọi REST sang parking-service"
+    // Wait, the plan: "Xóa bỏ axios.put(PARKING_SERVICE_URL...) trong /simulate/camera. Thêm rabbitmq.publishEvent..."
+    
+    // Publish event to RabbitMQ
+    await rabbitmq.publishEvent('device.plate-detected', { slotId, action, plateNumber: generatedPlate, status });
+
     const details = `Xe ${action === 'ENTER' ? 'vào' : 'ra'} ô đỗ ID ${slotId}. Biển số: ${generatedPlate}`;
     logEvent('CAMERA_ALPR', action, details);
     res.json({ message: "Đã giả lập camera thành công", plateNumber: generatedPlate, status });
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ message: "Lỗi kết nối parking-service" });
+    res.status(500).json({ message: "Lỗi nội bộ server" });
   }
 });
 

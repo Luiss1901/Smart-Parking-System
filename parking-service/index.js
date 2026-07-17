@@ -61,6 +61,9 @@ const initDb = async () => {
 };
 setTimeout(initDb, 5000);
 
+const { initSubscribers } = require('./src/subscribers/parkingSubscriber');
+initSubscribers();
+
 app.get("/slots", async (req, res) => {
   try {
       const slots = await poolReplica.query("SELECT * FROM slots");

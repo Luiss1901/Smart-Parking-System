@@ -4,6 +4,7 @@ const paymentRepository = require('../repositories/paymentRepository');
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:3000";
 const BOOKING_SERVICE_URL = process.env.BOOKING_SERVICE_URL || "http://booking-service:3000";
 const USER_MANAGEMENT_SERVICE_URL = process.env.USER_MANAGEMENT_SERVICE_URL || "http://user-management-service:3000";
+const rabbitmq = require('../utils/rabbitmq');
 
 const createPaymentUrl = async (bookingId, userId, amount, ipAddr) => {
     if (!bookingId || !amount) {
@@ -55,42 +56,21 @@ const handleIpn = async (query) => {
 
         await paymentRepository.updatePaymentStatus(txnRef, 'PAID', usdAmount, paidAt);
 
-        // Notify user
+        // Publish event
         try {
             const bookingRes = await fetch(`${BOOKING_SERVICE_URL}/`);
             const bookingBody = await bookingRes.json();
             const bookings = bookingBody.success !== undefined ? bookingBody.data : bookingBody;
             const booking = bookings.find(b => b.id == bookingId);
 
-            let userEmail = "member1@example.com";
-            let userName = "Khách";
-            
-            if (booking) {
-                const authRes = await fetch(`${USER_MANAGEMENT_SERVICE_URL}/`);
-                const authBody = await authRes.json();
-                const users = authBody.success !== undefined ? authBody.data : authBody;
-                const user = users.find(u => u.id == booking.userId);
-                if (user) {
-                    userEmail = user.email;
-                    userName = user.name;
-                }
-            }
-
-            await fetch(`${NOTIFICATION_SERVICE_URL}/send-email`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    to: userEmail,
-                    subject: "Smart Parking - Hóa đơn thanh toán thành công",
-                    html: `<p>Xin chào ${userName},</p>
-                           <p>Hóa đơn đặt chỗ xe (Booking #${bookingId}) đã thanh toán <b>THÀNH CÔNG</b> qua cổng VNPay.</p>
-                           <p>Số tiền: <b>${amount.toLocaleString()}đ</b></p>
-                           <p>Mã giao dịch: ${txnRef}</p>
-                           <p>Cảm ơn bạn đã sử dụng dịch vụ.</p>`
-                })
+            await rabbitmq.publishEvent('payment.completed', {
+                bookingId,
+                userId: booking ? booking.userId : null,
+                amount,
+                txnRef
             });
         } catch(err) {
-            console.log("Error orchestrating user email notify in payment-service IPN:", err.message);
+            console.log("Error publishing payment.completed event:", err.message);
         }
         return { RspCode: '00', Message: 'Confirm Success' };
     } else {
@@ -192,38 +172,16 @@ const refundPayment = async (paymentId, ipAddr = '127.0.0.1', createBy = 'Admin'
 
     await paymentRepository.updatePaymentStatus(payment.txnRef, 'REFUNDED');
     
-    const JWT_SECRET = process.env.JWT_SECRET || "smart-parking-secret";
-    const systemToken = jwt.sign({ id: 0, email: 'system@system.com', role: 'ADMIN' }, JWT_SECRET, { expiresIn: '1h' });
-
     try {
-        await fetch(`${BOOKING_SERVICE_URL}/${payment.bookingId}/cancel`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${systemToken}` }
+        await rabbitmq.publishEvent('payment.refunded', {
+            paymentId,
+            bookingId: payment.bookingId,
+            userId: payment.userId,
+            amount: payment.amount,
+            txnRef: payment.txnRef
         });
     } catch(err) {
-        console.error("Error cancelling booking during refund:", err.message);
-    }
-
-    try {
-        let userEmail = "member1@example.com";
-        const authRes = await fetch(`${USER_MANAGEMENT_SERVICE_URL}/${payment.userId}`);
-        const user = await authRes.json();
-        if (user && user.email) {
-            userEmail = user.email;
-        }
-
-        await fetch(`${NOTIFICATION_SERVICE_URL}/send-email`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                to: userEmail,
-                subject: "Smart Parking - Hoàn tiền thành công",
-                html: `<p>Hóa đơn (Txn: ${payment.txnRef}) với số tiền <b>${payment.amount.toLocaleString()}đ</b> đã được hoàn tiền.</p>
-                       <p>Chỗ đỗ xe (Booking #${payment.bookingId}) đã bị hủy.</p>`
-            })
-        });
-    } catch(err) {
-        console.log("Error sending refund email:", err.message);
+        console.error("Error publishing payment.refunded event:", err.message);
     }
     
     return { success: true, message: 'Refunded successfully' };
