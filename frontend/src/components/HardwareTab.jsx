@@ -55,7 +55,7 @@ const HardwareTab = () => {
 
   if (loading && slots.length === 0) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'rgba(255,255,255,0.6)' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--text-secondary)' }}>
         <RefreshCw className="animate-spin" size={32} />
       </div>
     );
@@ -65,13 +65,13 @@ const HardwareTab = () => {
     <div className="hardware-container" style={{ padding: '1rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
       
       {/* Left panel - Emulator Controls */}
-      <div className="glass-panel" style={{ flex: '1 1 300px', padding: '1.5rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <div className="glass-panel" style={{ flex: '1 1 300px', padding: '1.5rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '1.25rem' }}>
           <Cpu size={24} style={{ color: '#3b82f6' }} /> Bảng Điều Khiển Giả Lập
         </h3>
         
         <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>Chọn vị trí cảm biến (Ô đỗ):</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Chọn vị trí cảm biến (Ô đỗ):</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.5rem' }}>
             {slots.map(slot => (
               <button 
@@ -125,7 +125,7 @@ const HardwareTab = () => {
       </div>
 
       {/* Right panel - Live State */}
-      <div className="glass-panel" style={{ flex: '1 1 300px', padding: '1.5rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <div className="glass-panel" style={{ flex: '1 1 300px', padding: '1.5rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '1.25rem' }}>
           <Car size={24} style={{ color: '#a855f7' }} /> Trạng Thái Cảm Biến Thực Tế
         </h3>

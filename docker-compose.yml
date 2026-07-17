@@ -7,7 +7,8 @@ services:
     ports:
       - "8443:443"
     depends_on:
-      - api-gateway
+      api-gateway:
+        condition: service_started
 
   api-gateway:
     build:
@@ -15,15 +16,24 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - authentication-service
-      - user-management-service
-      - parking-service
-      - device-service
-      - booking-service
-      - payment-service
-      - report-service
-      - notification-service
-      - frontend
+      authentication-service:
+        condition: service_started
+      user-management-service:
+        condition: service_started
+      parking-service:
+        condition: service_started
+      device-service:
+        condition: service_started
+      booking-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      report-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      frontend:
+        condition: service_started
 
   authentication-service:
     build:
@@ -31,8 +41,10 @@ services:
     ports:
       - "3001:3000"
     depends_on:
-      - booking-db-primary
-      - booking-db-replica
+      booking-db-primary:
+        condition: service_healthy
+      booking-db-replica:
+        condition: service_healthy
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/authdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/authdb
@@ -43,8 +55,10 @@ services:
     ports:
       - "3008:3000"
     depends_on:
-      - booking-db-primary
-      - booking-db-replica
+      booking-db-primary:
+        condition: service_healthy
+      booking-db-replica:
+        condition: service_healthy
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/userdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/userdb
@@ -55,7 +69,8 @@ services:
     ports:
       - "3002:3000"
     depends_on:
-      - parking-db-primary
+      parking-db-primary:
+        condition: service_healthy
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@parking-db-primary:5432/parkingdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@parking-db-primary:5432/parkingdb
@@ -68,9 +83,12 @@ services:
       - "9000:9000"
       - "554:554"
     depends_on:
-      - parking-service
-      - booking-db-primary
-      - booking-db-replica
+      parking-service:
+        condition: service_started
+      booking-db-primary:
+        condition: service_healthy
+      booking-db-replica:
+        condition: service_healthy
     environment:
       - PARKING_SERVICE_URL=http://parking-service:3000
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/devicedb
@@ -90,11 +108,17 @@ services:
     volumes:
       - ./booking-service/pg-primary-data:/bitnami/postgresql
       - ./pg-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d bookingdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   booking-db-replica:
     image: bitnami/postgresql:latest
     depends_on:
-      - booking-db-primary
+      booking-db-primary:
+        condition: service_healthy
     environment:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_user
@@ -105,6 +129,11 @@ services:
       - POSTGRESQL_PASSWORD=mypassword
     volumes:
       - ./booking-service/pg-replica-data:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d bookingdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   payment-db-primary:
     image: bitnami/postgresql:latest
@@ -116,6 +145,11 @@ services:
       - POSTGRESQL_DATABASE=paymentdb
     volumes:
       - ./payment-service/pg-primary-data:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d paymentdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   parking-db-primary:
     image: bitnami/postgresql:latest
@@ -127,6 +161,11 @@ services:
       - POSTGRESQL_DATABASE=parkingdb
     volumes:
       - ./parking-service/pg-primary-data:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d parkingdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   booking-service:
     build:
@@ -134,9 +173,12 @@ services:
     ports:
       - "3003:3000"
     depends_on:
-      - parking-service
-      - booking-db-primary
-      - booking-db-replica
+      parking-service:
+        condition: service_started
+      booking-db-primary:
+        condition: service_healthy
+      booking-db-replica:
+        condition: service_healthy
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/bookingdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/bookingdb
@@ -147,8 +189,10 @@ services:
     ports:
       - "3004:3000"
     depends_on:
-      - booking-service
-      - payment-db-primary
+      booking-service:
+        condition: service_started
+      payment-db-primary:
+        condition: service_healthy
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@payment-db-primary:5432/paymentdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@payment-db-primary:5432/paymentdb
@@ -164,8 +208,10 @@ services:
     ports:
       - "3005:3000"
     depends_on:
-      - booking-db-primary
-      - booking-db-replica
+      booking-db-primary:
+        condition: service_healthy
+      booking-db-replica:
+        condition: service_healthy
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/reportdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/reportdb
@@ -176,8 +222,10 @@ services:
     ports:
       - "3006:3000"
     depends_on:
-      - booking-db-primary
-      - booking-db-replica
+      booking-db-primary:
+        condition: service_healthy
+      booking-db-replica:
+        condition: service_healthy
     environment:
       - POSTGRES_PRIMARY_URL=postgres://myuser:mypassword@booking-db-primary:5432/notificationdb
       - POSTGRES_REPLICA_URL=postgres://myuser:mypassword@booking-db-replica:5432/notificationdb

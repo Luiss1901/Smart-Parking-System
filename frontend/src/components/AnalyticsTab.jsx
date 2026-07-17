@@ -43,7 +43,7 @@ const AnalyticsTab = () => {
 
   if (loading && !revenueData && !errorMsg) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'rgba(255,255,255,0.6)' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--text-secondary)' }}>
         <Activity className="animate-spin" style={{ animation: 'spin 2s linear infinite' }} size={32} />
         <span style={{ marginLeft: '1rem' }}>Đang tải báo cáo...</span>
       </div>
@@ -70,34 +70,34 @@ const AnalyticsTab = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
         
         {/* Doanh Thu */}
-        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '50%', color: '#10b981' }}>
             <DollarSign size={28} />
           </div>
           <div>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Doanh Thu Hôm Nay</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Doanh Thu Hôm Nay</p>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{revenueData?.totalRevenue?.toLocaleString('vi-VN')} ₫</h3>
           </div>
         </div>
 
         {/* Lượt Giao Dịch */}
-        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '50%', color: '#3b82f6' }}>
             <TrendingUp size={28} />
           </div>
           <div>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Lượt Giao Dịch</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Lượt Giao Dịch</p>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{revenueData?.totalPayments}</h3>
           </div>
         </div>
 
         {/* Hiệu Suất */}
-        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ background: 'rgba(168, 85, 247, 0.1)', padding: '1rem', borderRadius: '50%', color: '#a855f7' }}>
             <Activity size={28} />
           </div>
           <div>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Hiệu Suất Lấp Đầy</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Hiệu Suất Lấp Đầy</p>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{usageData?.usageRate}</h3>
           </div>
         </div>
@@ -105,7 +105,7 @@ const AnalyticsTab = () => {
       </div>
 
       {/* Chi tiết bãi đỗ */}
-      <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1.5rem' }}>
           <Info size={20} style={{ color: 'var(--primary)' }} /> Chi Tiết Chỗ Đỗ Xe
         </h4>
@@ -147,34 +147,34 @@ const AnalyticsTab = () => {
 
       {/* Lịch Sử Thanh Toán */}
       {currentUser && (
-        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1.5rem' }}>
             <List size={20} style={{ color: 'var(--primary)' }} /> Lịch Sử Thanh Toán
           </h4>
 
           {historyData.length === 0 ? (
-            <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', padding: '2rem' }}>
+            <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
               Chưa có giao dịch nào
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}>
-                    <th style={{ padding: '1rem 0.5rem' }}>Mã Booking</th>
-                    <th style={{ padding: '1rem 0.5rem' }}>Mã GD</th>
-                    <th style={{ padding: '1rem 0.5rem' }}>Số tiền</th>
-                    <th style={{ padding: '1rem 0.5rem' }}>Thời gian</th>
-                    <th style={{ padding: '1rem 0.5rem' }}>Trạng thái</th>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Mã Booking</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Mã GD</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Số tiền</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Thời gian</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-primary)', fontWeight: '600' }}>Trạng thái</th>
                   </tr>
                 </thead>
                 <tbody>
                   {historyData.map(hist => (
-                    <tr key={hist.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <tr key={hist.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '1rem 0.5rem' }}>#{hist.bookingId}</td>
                       <td style={{ padding: '1rem 0.5rem' }}>{hist.txnRef}</td>
                       <td style={{ padding: '1rem 0.5rem', fontWeight: 'bold' }}>{hist.amount.toLocaleString('vi-VN')} đ</td>
-                      <td style={{ padding: '1rem 0.5rem', color: 'rgba(255,255,255,0.7)' }}>
+                      <td style={{ padding: '1rem 0.5rem', color: 'var(--text-primary)' }}>
                         {hist.paidAt ? new Date(hist.paidAt).toLocaleString('vi-VN') : '-'}
                       </td>
                       <td style={{ padding: '1rem 0.5rem' }}>
@@ -204,7 +204,7 @@ const AnalyticsTab = () => {
                             <XCircle size={14} /> FAILED
                           </span>
                         ) : (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.1)', color: '#fff', fontSize: '0.8rem' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'var(--warning-bg)', color: 'var(--warning)', fontSize: '0.8rem' }}>
                             <Clock size={14} /> PENDING
                           </span>
                         )}

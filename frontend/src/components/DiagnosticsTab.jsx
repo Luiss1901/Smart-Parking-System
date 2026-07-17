@@ -89,14 +89,14 @@ const DiagnosticsTab = () => {
       
       {/* Status Bar */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <div className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '200px' }}>
+        <div className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '200px' }}>
           <Server size={20} style={{ color: systemStatus === 'ONLINE' ? '#10b981' : '#f59e0b' }} />
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Gateway Status</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Gateway Status</div>
             <div style={{ fontWeight: 'bold', color: systemStatus === 'ONLINE' ? '#10b981' : '#f59e0b' }}>{systemStatus}</div>
           </div>
         </div>
-        <div className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '200px' }}>
+        <div className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '200px' }}>
           <Wifi size={20} style={{ color: '#3b82f6' }} />
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Network</div>
@@ -124,8 +124,8 @@ const DiagnosticsTab = () => {
       }}>
         {/* Terminal Header */}
         <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Terminal size={16} style={{ color: 'rgba(255,255,255,0.5)' }} />
-          <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>system_logs - root@gateway:~</span>
+          <Terminal size={16} style={{ color: 'var(--text-secondary)' }} />
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontFamily: 'monospace' }}>system_logs - root@gateway:~</span>
         </div>
         
         {/* Terminal Body */}
@@ -138,7 +138,7 @@ const DiagnosticsTab = () => {
         }}>
           {logs.map((log) => (
             <div key={log.id} style={{ marginBottom: '0.5rem', display: 'flex', gap: '1rem' }}>
-              <span style={{ color: 'rgba(255,255,255,0.4)', minWidth: '100px' }}>
+              <span style={{ color: 'var(--text-secondary)', minWidth: '100px' }}>
                 {log.time.toLocaleTimeString('vi-VN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
               <span style={{ color: getLogColor(log.type), minWidth: '80px', fontWeight: 'bold' }}>

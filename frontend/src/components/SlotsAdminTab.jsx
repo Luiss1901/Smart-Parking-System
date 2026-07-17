@@ -73,7 +73,7 @@ const SlotsAdminTab = () => {
 
   return (
     <div className="analytics-container" style={{ padding: '1rem' }}>
-      <div className="glass-panel" style={{ padding: '2rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <div className="glass-panel" style={{ padding: '2rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '1.5rem' }}>
             <Grid style={{ color: 'var(--primary)' }} /> Quản Lý Chỗ Đỗ
@@ -89,7 +89,7 @@ const SlotsAdminTab = () => {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
                   <th style={{ padding: '1rem' }}>ID</th>
                   <th style={{ padding: '1rem' }}>Mã Chỗ</th>
                   <th style={{ padding: '1rem' }}>Khu Vực</th>
@@ -100,7 +100,7 @@ const SlotsAdminTab = () => {
               </thead>
               <tbody>
                 {slots.map(slot => (
-                  <tr key={slot.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <tr key={slot.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '1rem' }}>{slot.id}</td>
                     <td style={{ padding: '1rem', fontWeight: 'bold' }}>{slot.code}</td>
                     <td style={{ padding: '1rem' }}>Khu {slot.area || 'A'}</td>
@@ -134,20 +134,20 @@ const SlotsAdminTab = () => {
 
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem', borderRadius: '12px', background: '#1e293b' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem', borderRadius: '12px', background: 'var(--bg-card)' }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>{editingSlot ? 'Sửa Chỗ Đỗ' : 'Thêm Chỗ Đỗ Mới'}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Mã Chỗ (VD: A01)</label>
-                <input required type="text" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', outline: 'none' }} />
+                <input required type="text" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none' }} />
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Khu Vực (VD: A)</label>
-                <input required type="text" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', outline: 'none' }} />
+                <input required type="text" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none' }} />
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Loại Xe</label>
-                <select required value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.2)', color: 'white', outline: 'none' }}>
+                <select required value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', outline: 'none' }}>
                   <option value="CAR">Ô Tô</option>
                   <option value="MOTORBIKE">Xe Máy</option>
                 </select>
